@@ -19,7 +19,7 @@ public class CSVHandle {
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final DateTimeFormatter OUTPUT_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("dd/MM/yy");
+            DateTimeFormatter.ofPattern("dd");
 
     public static void convert(Path inputPath, Path outputPath) throws IOException {
 
