@@ -18,8 +18,11 @@ public class CSVHandle {
     private static final DateTimeFormatter INPUT_DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private static final DateTimeFormatter OUTPUT_DATE_FORMAT =
+    private static final DateTimeFormatter OUTPUT_DAY_FORMAT =
             DateTimeFormatter.ofPattern("dd");
+
+    private static final DateTimeFormatter OUTPUT_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static void convert(Path inputPath, Path outputPath) throws IOException {
 
@@ -31,7 +34,7 @@ public class CSVHandle {
                 .collect(Collectors.toList());
 
         // Novo cabeçalho
-        processedLines.add(0, "date;title;amount");
+        processedLines.add(0, "date;day;title;amount");
 
         Files.write(outputPath, processedLines);
     }
@@ -41,10 +44,13 @@ public class CSVHandle {
         String[] columns = line.split(INPUT_SEPARATOR);
 
         String formattedDate = formatDate(columns[0]);
+        String day = formatDay(columns[0]);
         String title = columns[1];
-        String formattedAmount = formatAmount(columns[2]);
+        columns[2] = columns[2].replace(".", "");
 
-        return String.join(OUTPUT_SEPARATOR, formattedDate, title, formattedAmount);
+        String formattedAmount = formatAmount(columns[2].concat(".").concat(columns[3]));
+
+        return String.join(OUTPUT_SEPARATOR, formattedDate, day, title, formattedAmount);
     }
 
     private static String formatDate(String date) {
@@ -52,7 +58,16 @@ public class CSVHandle {
         return parsedDate.format(OUTPUT_DATE_FORMAT);
     }
 
+    private static String formatDay(String date) {
+        LocalDate parsedDate = LocalDate.parse(date, INPUT_DATE_FORMAT);
+        return parsedDate.format(OUTPUT_DAY_FORMAT);
+    }
+
     private static String formatAmount(String amount) {
+
+        amount = amount.replace("\"", "");
+        amount = amount.replace(" ", "");
+
         BigDecimal value = new BigDecimal(amount)
                 .setScale(2, RoundingMode.HALF_UP);
 
